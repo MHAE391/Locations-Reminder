@@ -59,7 +59,9 @@
         <service
             android:name="com.udacity.project4.locationreminders.geofence.GeofenceTransitionsJobIntentService"
             android:exported="true"
+            android:foregroundServiceType="location"
             android:permission="android.permission.BIND_JOB_SERVICE" />
+
     </application>
 
 </manifest>

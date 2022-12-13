@@ -1,8 +1,12 @@
 package com.udacity.project4.locationreminders.reminderslist
 
+import android.Manifest
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.view.*
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.databinding.DataBindingUtil
 import androidx.navigation.fragment.findNavController
 import com.firebase.ui.auth.AuthUI
@@ -20,6 +24,7 @@ class ReminderListFragment : BaseFragment() {
     //use Koin to retrieve the ViewModel instance
     override val _viewModel: RemindersListViewModel by viewModel()
     private lateinit var binding: FragmentRemindersBinding
+    @RequiresApi(Build.VERSION_CODES.N)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -35,6 +40,19 @@ class ReminderListFragment : BaseFragment() {
         setDisplayHomeAsUpEnabled(false)
         setTitle(getString(R.string.app_name))
 
+        val locationPermissionRequest = registerForActivityResult(
+            ActivityResultContracts.RequestMultiplePermissions()
+        ) { permissions ->
+            when {
+                permissions.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false) -> {}
+                permissions.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false) -> {
+                }
+            }
+        }
+        locationPermissionRequest.launch(arrayOf(
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+        ))
         binding.refreshLayout.setOnRefreshListener { _viewModel.loadReminders() }
 
         return binding.root
