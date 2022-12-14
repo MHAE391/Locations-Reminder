@@ -5,13 +5,16 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
+import androidx.navigation.findNavController
 import com.udacity.project4.R
 import com.udacity.project4.databinding.ActivityReminderDescriptionBinding
 import com.udacity.project4.locationreminders.reminderslist.ReminderDataItem
+import com.udacity.project4.utils.sendNotification
 
 /**
  * Activity that displays the reminder details after the user clicks on the notification
  */
+
 class ReminderDescriptionActivity : AppCompatActivity() {
 
     companion object {
@@ -33,5 +36,12 @@ class ReminderDescriptionActivity : AppCompatActivity() {
             R.layout.activity_reminder_description
         )
 //        TODO: Add the implementation of the reminder details
+        if (intent.hasExtra(EXTRA_ReminderDataItem)) {
+            binding.reminderDataItem = intent.extras?.get(EXTRA_ReminderDataItem) as ReminderDataItem?
+        }
+        binding.backButton.setOnClickListener {
+            startActivity(Intent(this,RemindersActivity::class.java))
+            finish()
+        }
     }
 }
