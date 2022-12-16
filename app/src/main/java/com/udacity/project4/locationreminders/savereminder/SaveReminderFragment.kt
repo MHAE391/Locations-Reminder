@@ -79,7 +79,7 @@ class SaveReminderFragment : BaseFragment() {
         binding.viewModel = _viewModel
 
         geofencingClient = LocationServices.getGeofencingClient(requireActivity())
-        //requestPermissions()
+        requestPermissions()
         return binding.root
     }
 
@@ -204,7 +204,7 @@ class SaveReminderFragment : BaseFragment() {
                     grantResults[BACKGROUND_LOCATION_PERMISSION_INDEX] ==
                     PackageManager.PERMISSION_DENIED)
         )
-           // showRationale()
+            showRationale()
         else
             StartGeofence()
     }

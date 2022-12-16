@@ -1,5 +1,7 @@
 package com.udacity.project4.locationreminders.reminderslist
 
+import android.app.Application
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth
@@ -7,9 +9,11 @@ import com.udacity.project4.locationreminders.data.FakeDataSource
 import com.udacity.project4.locationreminders.data.dto.ReminderDTO
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runBlockingTest
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.koin.core.context.stopKoin
@@ -25,12 +29,18 @@ class RemindersListViewModelTest {
     private val reminder4: ReminderDTO = ReminderDTO("Title4", "Description", "location", 0.0, 0.0)
     private val reminder5: ReminderDTO = ReminderDTO("Title5", "Description", "location", 0.0, 0.0)
     private val reminders = listOf(reminder,reminder2,reminder3,reminder4,reminder5)
-
     private lateinit var remindersRepository: FakeDataSource
     private lateinit var viewModel: RemindersListViewModel
 
+    @get:Rule
+    var mainCoroutine = MainCoroutine()
+
+    @get:Rule
+    var instantExecutorRule = InstantTaskExecutorRule()
+
     @Before
     fun start() {
+        stopKoin()
         remindersRepository = FakeDataSource()
         viewModel = RemindersListViewModel(ApplicationProvider.getApplicationContext(), remindersRepository)
     }
@@ -41,7 +51,7 @@ class RemindersListViewModelTest {
     }
     @Test
     fun getRemindersReturnError(){
-        runTest {
+        mainCoroutine.runBlockingTest {
             remindersRepository.returnError = true
             viewModel.loadReminders()
             Truth.assertThat(viewModel.showSnackBar.value).isEqualTo("Error getting reminders")
@@ -49,15 +59,24 @@ class RemindersListViewModelTest {
     }
     @Test
     fun getRemindersReturnNonEmptyList(){
-        runTest{
+       mainCoroutine. runBlockingTest{
             remindersRepository.returnError = false
             reminders.forEach {reminder->
                 remindersRepository.saveReminder(reminder)
             }
             viewModel.loadReminders()
-            Truth.assertThat(viewModel.showLoading.value).isTrue()
-            Truth.assertThat(viewModel.remindersList.value).isNotEmpty()
+           Truth.assertThat(viewModel.showNoData.value).isFalse()
+           Truth.assertThat(viewModel.remindersList.value).isNotEmpty()
 
+        }
+    }
+    @Test
+    fun getRemindersReturnEmptyList(){
+        mainCoroutine. runBlockingTest{
+            remindersRepository.returnError = false
+            viewModel.loadReminders()
+            Truth.assertThat(viewModel.showNoData.value).isTrue()
+            Truth.assertThat(viewModel.remindersList.value).isEmpty()
         }
     }
 
