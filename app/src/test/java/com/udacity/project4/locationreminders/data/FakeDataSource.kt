@@ -8,8 +8,8 @@ import com.udacity.project4.locationreminders.data.dto.Result.Success
 
 //Use FakeDataSource that acts as a test double to the LocalDataSource
 @Suppress("UNREACHABLE_CODE", "UnusedEquals")
-class FakeDataSource(private var reminders: MutableList<ReminderDTO> = mutableListOf()) : ReminderDataSource {
-
+class FakeDataSource : ReminderDataSource {
+    private var reminders: MutableList<ReminderDTO> = mutableListOf()
 //    TODO: Create a fake data source to act as a double to the real data source
     var returnError = false
     override suspend fun getReminders(): Result<List<ReminderDTO>> {

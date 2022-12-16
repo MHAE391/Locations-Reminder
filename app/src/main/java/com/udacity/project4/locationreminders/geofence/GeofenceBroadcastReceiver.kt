@@ -17,10 +17,6 @@ import com.udacity.project4.utils.Constants.GEOFENCE_EVENT
 
 class GeofenceBroadcastReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-
-        if (intent.action == GEOFENCE_EVENT) {
             GeofenceTransitionsJobIntentService.enqueueWork(context, intent)
-        }
-
     }
 }

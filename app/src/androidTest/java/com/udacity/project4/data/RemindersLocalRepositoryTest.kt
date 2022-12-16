@@ -33,7 +33,7 @@ class RemindersLocalRepositoryTest {
     private lateinit var database: RemindersDatabase
 
     @Before
-    fun createRepository(){
+    fun start(){
         database = Room.inMemoryDatabaseBuilder(ApplicationProvider.getApplicationContext(),RemindersDatabase::class.java).allowMainThreadQueries().build()
         remindersLocalRepository = RemindersLocalRepository(database.reminderDao(),Dispatchers.Main)
     }

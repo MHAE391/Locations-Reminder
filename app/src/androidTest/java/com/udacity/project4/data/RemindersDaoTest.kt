@@ -43,7 +43,7 @@ class RemindersDaoTest {
     private lateinit var remindersDao: RemindersDao
 
     @Before
-    fun createDb() {
+    fun start() {
         database = Room.inMemoryDatabaseBuilder(
             ApplicationProvider.getApplicationContext(),
             RemindersDatabase::class.java
@@ -53,7 +53,7 @@ class RemindersDaoTest {
 
     @After
     @Throws(IOException::class)
-    fun closeDb() {
+    fun end() {
         database.close()
     }
 
