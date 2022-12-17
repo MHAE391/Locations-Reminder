@@ -4,6 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.content.res.Resources
+import android.location.Location
 import android.os.Bundle
 import android.util.Log
 import android.view.*
@@ -37,6 +38,10 @@ class SelectLocationFragment : BaseFragment() , OnMapReadyCallback {
     private val TAG = SelectLocationFragment::class.java.simpleName
     private val REQUEST_LOCATION_PERMISSION = 1
     private var MarkerPosition: PointOfInterest? = null
+    private val fusedLocationProviderClient by lazy {
+        LocationServices.getFusedLocationProviderClient(requireActivity())
+    }
+    private val DEFAULT_ZOOM_LEVEL = 15f
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
@@ -106,8 +111,12 @@ class SelectLocationFragment : BaseFragment() , OnMapReadyCallback {
     private fun setMap(){
         setMapStyle(map)
         setPoiClick(map)
-        enableMyLocation()
         setMapLongClick(map)
+        if(isPermissionGranted()){
+            enableMyLocation()
+        }else {
+            requestQPermission()
+        }
     }
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
@@ -168,20 +177,33 @@ class SelectLocationFragment : BaseFragment() , OnMapReadyCallback {
 
     private fun isPermissionGranted(): Boolean {
         return ContextCompat.checkSelfPermission(
-            requireContext(),
+            requireActivity(),
             Manifest.permission.ACCESS_FINE_LOCATION
         ) === PackageManager.PERMISSION_GRANTED
     }
 
+    @SuppressLint("MissingPermission")
     private fun enableMyLocation() {
-        if (!isPermissionGranted()) {
-            val permissionsArray = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
-            val resultCode = REQUEST_LOCATION_PERMISSION
-            requestPermissions(
-                permissionsArray,
-                resultCode
-            )
-        }
+        map.isMyLocationEnabled = true
+        map.uiSettings.isMyLocationButtonEnabled = true
+        fusedLocationProviderClient.lastLocation
+            .addOnSuccessListener { location: Location? ->
+                location?.let {
+                    val userLocation = LatLng(location.latitude, location.longitude)
+                    map.moveCamera(
+                        CameraUpdateFactory.newLatLngZoom(
+                            userLocation,
+                            DEFAULT_ZOOM_LEVEL
+                        )
+                    )
+                    val poiMarker = map.addMarker(
+                        MarkerOptions()
+                            .position(userLocation)
+                            .title("My Location")
+                    )
+                    poiMarker?.showInfoWindow()
+                }
+            }
     }
 
     @SuppressLint("MissingPermission")
@@ -196,9 +218,22 @@ class SelectLocationFragment : BaseFragment() , OnMapReadyCallback {
         ) {
             _viewModel.showSnackBar.postValue(getString(R.string.location_required_error))
         }else {
+            enableMyLocation()
+        }
+    }
+    private fun requestQPermission() {
+        if (ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) ==
+            PackageManager.PERMISSION_GRANTED &&
+            ContextCompat.checkSelfPermission(requireContext(),
+                Manifest.permission.ACCESS_COARSE_LOCATION)
+            == PackageManager.PERMISSION_GRANTED) {
             map.isMyLocationEnabled = true
-            map.uiSettings.isMyLocationButtonEnabled = true
-            setMap()
+        } else {
+            this.requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                REQUEST_LOCATION_PERMISSION)
         }
     }
 }
