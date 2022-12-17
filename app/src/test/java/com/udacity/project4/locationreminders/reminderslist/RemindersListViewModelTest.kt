@@ -7,6 +7,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth
 import com.udacity.project4.locationreminders.data.FakeDataSource
 import com.udacity.project4.locationreminders.data.dto.ReminderDTO
+import com.udacity.project4.locationreminders.savereminder.getOrAwaitValue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runBlockingTest
@@ -54,7 +55,7 @@ class RemindersListViewModelTest {
         mainCoroutine.runBlockingTest {
             remindersRepository.returnError = true
             viewModel.loadReminders()
-            Truth.assertThat(viewModel.showSnackBar.value).isEqualTo("Error getting reminders")
+            Truth.assertThat(viewModel.showSnackBar.getOrAwaitValue()).isEqualTo("Error getting reminders")
         }
     }
     @Test
@@ -65,8 +66,8 @@ class RemindersListViewModelTest {
                 remindersRepository.saveReminder(reminder)
             }
             viewModel.loadReminders()
-            Truth.assertThat(viewModel.showNoData.value).isFalse()
-            Truth.assertThat(viewModel.remindersList.value).isNotEmpty()
+            Truth.assertThat(viewModel.showNoData.getOrAwaitValue()).isFalse()
+            Truth.assertThat(viewModel.remindersList.getOrAwaitValue()).isNotEmpty()
 
         }
     }
@@ -75,8 +76,8 @@ class RemindersListViewModelTest {
         mainCoroutine. runBlockingTest{
             remindersRepository.returnError = false
             viewModel.loadReminders()
-            Truth.assertThat(viewModel.showNoData.value).isTrue()
-            Truth.assertThat(viewModel.remindersList.value).isEmpty()
+            Truth.assertThat(viewModel.showNoData.getOrAwaitValue()).isTrue()
+            Truth.assertThat(viewModel.remindersList.getOrAwaitValue()).isEmpty()
         }
     }
 

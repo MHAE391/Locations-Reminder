@@ -56,7 +56,7 @@ class SelectLocationFragment : BaseFragment() , OnMapReadyCallback {
         mapFragment.getMapAsync(this)
 //
 //       TODO: call this function after the user confirms on the selected location
-        enableMyLocation()
+
         binding.save.setOnClickListener {
             if (MarkerPosition == null) {
               _viewModel.showErrorMessage.postValue("Mark The Reminder Location")
@@ -103,11 +103,15 @@ class SelectLocationFragment : BaseFragment() , OnMapReadyCallback {
         else -> super.onOptionsItemSelected(item)
     }
 
-    override fun onMapReady(googleMap: GoogleMap) {
-        map = googleMap
+    private fun setMap(){
         setMapStyle(map)
         setPoiClick(map)
+        enableMyLocation()
         setMapLongClick(map)
+    }
+    override fun onMapReady(googleMap: GoogleMap) {
+        map = googleMap
+        setMap()
     }
 
     private fun setMapLongClick(map: GoogleMap) {
@@ -194,6 +198,7 @@ class SelectLocationFragment : BaseFragment() , OnMapReadyCallback {
         }else {
             map.isMyLocationEnabled = true
             map.uiSettings.isMyLocationButtonEnabled = true
+            setMap()
         }
     }
 }
